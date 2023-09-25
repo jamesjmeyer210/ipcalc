@@ -5,6 +5,7 @@
 #include "ipv4addr.h"
 #include "appstate.h"
 #include "ipv4regex.h"
+#include "lib/error.h"
 
 static struct option long_options[] = {
   {"help", no_argument, 0, 'h'},
@@ -29,8 +30,7 @@ int main(int argc, char** argv)
       switch(c)
       {
         case 'h':
-          printf("ipcalc\n");
-          printf("By James Meyer\n\n");
+          printf("ipcalc\n\n");
           printf(" -h, --help\t\t\t\t\t\tPrint options\n");
           printf(" -c, --convert [ip address]\t\t\t\tBy default, converts an IP address in IP notation (x.x.x.x) to a decimal number. Use with (-f/--format) to specify the input type.\n");
           printf(" -R, --range [start ip address]:[end ip address]\tComputes the slash notation of a range of IP Addresses\n");
@@ -66,34 +66,49 @@ int main(int argc, char** argv)
 
   if(app_state.convert && (app_state.format == NULL || str_eq(app_state.format, FORMAT_DECIMAL)))
   {
-    printf("%u\n", ipv4_to_int(app_state.convert));
+    uint32_t x;
+    if(OK != try_ipv4_to_int32(app_state.convert, &x))
+    {
+      Error e = get_error();
+      print_error(&e);
+      exit(e.code);
+    }
+    printf("%u\n", x);
   }
 
   if(app_state.convert && str_eq(app_state.format, FORMAT_IPV4))
   {
-    char* result = decimal_to_ipv4(app_state.convert);
-    if(result == NULL)
+    char result[15];
+    if(OK != try_decimal_to_ipv4(app_state.convert, result))
     {
-      fprintf(stderr, "Failed to convert %s\n", app_state.convert);
-      exit(1);
+      Error e = get_error();
+      print_error(&e);
+      exit(e.code);
     }
     printf("%s\n", result);
-    free(result);
   }
 
   if(app_state.range)
   {
     regex_t regex = init_ipv4_regex();
     Ipv4Range range;
-    if(!try_get_ipv4_range(&regex, app_state.range, COLON, &range))
+    if(OK != try_get_ipv4_range(&regex, app_state.range, COLON, &range))
     {
+      Error e = get_error();
+      print_error(&e);
       fprintf(stderr, "Invalid IPV4 range %s\n", app_state.range);
-      exit(1);
+      exit(e.code);
     }
 
-    char* low = int_to_ipv4(range.lower);
+    //char* low = int_to_ipv4(range.lower);
+    char low[15];
+    if(OK != try_uint32_to_ipv4(range.lower, low))
+    {
+      Error e = get_error();
+      print_error(&e);
+      exit(e.code);
+    }
     printf("%s/%d\n", low, range.bits);
-    free(low);
   }
 
   if(app_state.print_range)

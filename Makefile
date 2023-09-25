@@ -11,7 +11,10 @@ clean:
 	rm -v obj/*
 	rm -v bin/*
 
-convert.o:
+error.o:
+	$(CC) -g -c $(CFLAGS) src/lib/error.c -o obj/error.o
+
+convert.o: error.o
 	$(CC) -g -c $(CFLAGS) src/lib/convert.c -o obj/convert.o
 
 bits.o:
@@ -26,14 +29,15 @@ string.o: list.o
 ipv4regex.o:
 	$(CC) -g -c $(CFLAGS) src/ipv4regex.c -o obj/ipv4regex.o
 
-ipv4addr.o: ipv4regex.o string.o
+ipv4addr.o: error.o convert.o ipv4regex.o string.o
 	$(CC) -g -c $(CFLAGS) src/ipv4addr.c -o obj/ipv4addr.o
 
 appstate.o: list.o
 	$(CC) -g -c $(CFLAGS) src/appstate.c -o obj/appstate.o
 
-all: bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
+all: error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
 	$(CC) $(CFLAGS) src/main.c \
+		obj/error.o \
 		obj/convert.o \
 		obj/bits.o \
 		obj/appstate.o \

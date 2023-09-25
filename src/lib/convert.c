@@ -1,17 +1,19 @@
 #include "convert.h"
 #include <string.h>
 #include "string.h"
+#include "error.h"
 
 #define MAX_UINT8 0xFF
 #define MAX_UINT32 0xFFFFFFFF
 
-uint8_t uint8_from_str(const char* src)
+error_t try_uint8_from_str(const char* src, uint8_t* result)
 {
-  if(src == NULL) return 0;
+  if(src == NULL) return ERR(ERR_ARG_NULL);
+  if(result == NULL) return ERR(ERR_ARG_NULL);
 
   size_t len = strlen(src);
-  if(len > 3) return 0;
-  if(!strn_is_numeric(src, len)) return 0;
+  if(len > 3) return ERR(ERR_ARG_OUT_OF_RANGE);
+  if(!strn_is_numeric(src, len)) return ERR(ERR_ARG_INVALID);
 
   uint64_t x = 0;
   uint64_t m = 1;
@@ -21,17 +23,19 @@ uint8_t uint8_from_str(const char* src)
     m *= 10;
   }
 
-  if(x > MAX_UINT8) return 0;
-  return (uint32_t)x;
+  if(x > MAX_UINT8) return ERR(ERR_ARG_OUT_OF_RANGE);
+  *result = (uint8_t)x;
+  return OK;
 }
 
-uint32_t uint32_from_str(const char* src)
+error_t try_uint32_from_str(const char* src, uint32_t* result)
 {
-  if(src == NULL) return 0;
+  if(src == NULL) return ERR(ERR_ARG_NULL);
+  if(result == NULL) return ERR(ERR_ARG_NULL);
 
   size_t len = strlen(src);
-  if(len > 10) return 0;
-  if(!strn_is_numeric(src, len)) return 0;
+  if(len > 10) return ERR(ERR_ARG_OUT_OF_RANGE);
+  if(!strn_is_numeric(src, len)) return ERR(ERR_ARG_OUT_OF_RANGE);
 
   uint64_t x = 0;
   uint64_t m = 1;
@@ -41,6 +45,7 @@ uint32_t uint32_from_str(const char* src)
     m *= 10;
   }
 
-  if(x > MAX_UINT32) return 0;
-  return (uint32_t)x;
+  if(x > MAX_UINT32) return ERR(ERR_ARG_OUT_OF_RANGE);
+  *result = (uint32_t)x;
+  return OK;
 }

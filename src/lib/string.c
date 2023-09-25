@@ -6,6 +6,9 @@
 
 inline bool str_eq(const char* a, const char* b)
 {
+  if(a == NULL && b == NULL) return true;
+  if(a == NULL) return false;
+  if(b == NULL) return false;
   return strcmp(a, b) == 0;
 }
 

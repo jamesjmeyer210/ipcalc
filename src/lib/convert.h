@@ -2,9 +2,10 @@
 #define CONVERT_H
 
 #include "stdint.h"
+#include "error.h"
 
-uint8_t uint8_from_str(const char* src);
+error_t try_uint8_from_str(const char* src, uint8_t* result);
 
-uint32_t uint32_from_str(const char* src);
+error_t try_uint32_from_str(const char* src, uint32_t* result);
 
 #endif //CONVERT_H
