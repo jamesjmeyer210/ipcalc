@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include "stdlib.h"
 #include "string.h"
-#include "stdio.h"
 
 inline bool str_eq(const char* a, const char* b)
 {

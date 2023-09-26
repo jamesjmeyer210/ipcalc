@@ -67,7 +67,7 @@ int main(int argc, char** argv)
   if(app_state.convert && (app_state.format == NULL || str_eq(app_state.format, FORMAT_DECIMAL)))
   {
     uint32_t x;
-    if(OK != try_ipv4_to_int32(app_state.convert, &x))
+    if(OK != try_ipv4_to_uint32(app_state.convert, &x))
     {
       Error e = get_error();
       print_error(&e);
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   if(app_state.range)
   {
     regex_t regex = init_ipv4_regex();
-    Ipv4Range range;
+    Ipv4Range range = {0};
     if(OK != try_get_ipv4_range(&regex, app_state.range, COLON, &range))
     {
       Error e = get_error();
@@ -100,7 +100,6 @@ int main(int argc, char** argv)
       exit(e.code);
     }
 
-    //char* low = int_to_ipv4(range.lower);
     char low[15];
     if(OK != try_uint32_to_ipv4(range.lower, low))
     {
@@ -108,7 +107,23 @@ int main(int argc, char** argv)
       print_error(&e);
       exit(e.code);
     }
+
     printf("%s/%d\n", low, range.bits);
+    while(range.remainder > 0)
+    {
+      Ipv4Range next = {0};
+      next = *ipv4_range_next(&range, &next);
+      try_uint32_to_ipv4(next.lower, low);
+      if(next.remainder > 0)
+      {
+        printf("%s/%d\n", low, next.bits);
+      }
+      else
+      {
+        printf("%s\n", low);
+      }
+      range = next;
+    }
   }
 
   if(app_state.print_range)

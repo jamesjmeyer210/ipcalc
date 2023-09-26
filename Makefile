@@ -6,6 +6,14 @@ CFLAGS = -O \
 	-Wundef \
 	-Wformat=2 \
 	-g
+OBJ_FILES = obj/error.o \
+	obj/convert.o \
+	obj/bits.o \
+	obj/appstate.o \
+	obj/ipv4regex.o \
+	obj/ipv4addr.o \
+	obj/list.o \
+	obj/string.o
 
 clean:
 	rm -v obj/*
@@ -19,6 +27,9 @@ convert.o: error.o
 
 bits.o:
 	$(CC) -g -c $(CFLAGS) src/lib/bits.c -o obj/bits.o
+
+bits-test:
+	$(CC) $(CFLAGS) -D TEST=1 src/lib/bits.c -o bin/bits-test
 
 list.o:
 	$(CC) -g -c $(CFLAGS) src/lib/list.c -o obj/list.o
@@ -36,23 +47,7 @@ appstate.o: list.o
 	$(CC) -g -c $(CFLAGS) src/appstate.c -o obj/appstate.o
 
 all: error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
-	$(CC) $(CFLAGS) src/main.c \
-		obj/error.o \
-		obj/convert.o \
-		obj/bits.o \
-		obj/appstate.o \
-		obj/ipv4regex.o \
-		obj/ipv4addr.o \
-  		obj/list.o \
-  		obj/string.o \
-		-o bin/ipcalc
+	$(CC) $(CFLAGS) src/main.c $(OBJ_FILES) -o bin/ipcalc
 
 test: all
-	$(CC) $(CFLAGS) test/test.c \
-	obj/convert.o \
-	obj/bits.o \
- 	obj/ipv4regex.o \
-	obj/ipv4addr.o \
-	obj/list.o \
-	obj/string.o \
- 	-o bin/ipcalc-test
+	$(CC) $(CFLAGS) test/test.c $(OBJ_FILES) -o bin/ipcalc-test
