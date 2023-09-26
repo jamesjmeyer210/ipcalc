@@ -15,6 +15,19 @@ inline error_t error_new(error_t error, uint16_t line, const char* file, const c
   e.line = line;
   strncpy(e.file, file, 64);
   strncpy(e.func, func, 64);
+  memset(e.msg, '\0', 256);
+  memcpy(&_error, &e, sizeof(Error));
+  return error;
+}
+
+inline error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* msg)
+{
+  Error e;
+  e.code = error;
+  e.line = line;
+  strncpy(e.file, file, 64);
+  strncpy(e.func, func, 64);
+  strncpy(e.msg, msg, 256);
   memcpy(&_error, &e, sizeof(Error));
   return error;
 }

@@ -20,11 +20,16 @@ typedef struct error {
   uint16_t line;
   char file[64];
   char func[64];
+  char msg[256];
 } Error;
 
 error_t error_new(error_t error, uint16_t line, const char* file, const char* func);
 
 #define ERR(ERROR_T) error_new(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__)
+
+error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* msg);
+
+#define ERR_MSG(ERROR_T, MSG) error_new_msg(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, MSG)
 
 Error get_error();
 
