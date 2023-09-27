@@ -1,7 +1,6 @@
 #include "ipv4regex.h"
 #include "ipv4addr.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include "lib/error.h"
@@ -150,6 +149,10 @@ static error_t try_get_ipv4_colon_range(const regex_t* ipv4_regex, const char* s
 static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, Ipv4Range* result)
 {
   List* addrs = str_split(str, '/');
+  if(addrs == NULL)
+  {
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \'/\'\n", str);
+  }
   if(addrs->len != 2)
   {
     list_free(addrs);
@@ -166,7 +169,7 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
   if(OK != try_uint8_from_str(addrs->data[1], &result->bits)) return get_error_code();
   result->upper = result->lower + (1 << result->bits);
   list_free(addrs);
-  return true;
+  return OK;
 }
 
 error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4RangeFormat format, Ipv4Range* result)
