@@ -20,14 +20,22 @@ inline error_t error_new(error_t error, uint16_t line, const char* file, const c
   return error;
 }
 
-inline error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* msg)
+inline error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* format, ...)
 {
   Error e;
   e.code = error;
   e.line = line;
   strncpy(e.file, file, 64);
   strncpy(e.func, func, 64);
-  strncpy(e.msg, msg, 256);
+
+  va_list args;
+  va_start(args, format);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+  vsnprintf(e.msg, ERR_MSG_SIZE, format, args);
+#pragma clang diagnostic pop
+  va_end(args);
+
   memcpy(&_error, &e, sizeof(Error));
   return error;
 }
@@ -43,10 +51,17 @@ error_t get_error_code()
   return _error.code;
 }
 
-void print_error(const Error* error)
+void print_error(const Error* error, bool verbose)
 {
   if(error == NULL)
+  {
     fprintf(stderr, "Error: (NULL)");
-  else
-    fprintf(stderr,"ERROR:\n\tcode: %d\n\tfile: %s\n\tline: %d\n\tfunction: %s\n", error->code, error->file, error->line, error->func);
+    return;
+  }
+  if(verbose)
+  {
+    fprintf(stderr,"ERROR:\t%d\t%s.%d.%s: %s", error->code, error->file, error->line, error->func, error->msg);
+    return;
+  }
+  fprintf(stderr,"ERROR: %s", error->msg);
 }

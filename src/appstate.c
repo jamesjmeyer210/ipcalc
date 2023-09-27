@@ -31,7 +31,7 @@ inline error_t app_state_convert(const AppState* self)
     if(OK != try_ipv4_to_uint32(self->convert, &x))
     {
       Error e = get_error();
-      print_error(&e);
+      print_error(&e, self->verbose);
       return e.code;
     }
     printf("%u\n", x);
@@ -43,7 +43,7 @@ inline error_t app_state_convert(const AppState* self)
     if(OK != try_decimal_to_ipv4(self->convert, result))
     {
       Error e = get_error();
-      print_error(&e);
+      print_error(&e, self->verbose);
       return e.code;
     }
     printf("%s\n", result);
@@ -59,8 +59,7 @@ inline error_t app_state_compute_range(const AppState* self)
   if(OK != try_get_ipv4_range(&regex, self->range, COLON, &range))
   {
     Error e = get_error();
-    print_error(&e);
-    fprintf(stderr, "Invalid IPV4 range %s\n", self->range);
+    print_error(&e, self->verbose);
     return e.code;
   }
 
@@ -68,7 +67,7 @@ inline error_t app_state_compute_range(const AppState* self)
   if(OK != try_uint32_to_ipv4(range.lower, low))
   {
     Error e = get_error();
-    print_error(&e);
+    print_error(&e, self->verbose);
     return e.code;
   }
 
@@ -98,9 +97,8 @@ inline error_t app_state_print_range(const AppState* self)
   Ipv4Range range;
   if(OK != try_get_ipv4_range(&regex, self->print_range, SLASH, &range))
   {
-    //fprintf(stderr, "Invalid IPV4 range %s\n", self->print_range);
     Error e = get_error();
-    print_error(&e);
+    print_error(&e, self->verbose);
     return e.code;
   }
 

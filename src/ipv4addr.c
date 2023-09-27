@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "lib/error.h"
 #include "lib/string.h"
 #include "lib/convert.h"
@@ -45,10 +46,13 @@ static uint8_t ipv4_space_to_byte(const char* ipv4_space)
 
 error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
 {
+  assert(ipv4_str != NULL);
+  assert(result != NULL);
+
   regex_t regex = init_ipv4_regex();
   if(!regex_is_valid(&regex, ipv4_str))
   {
-    return ERR(ERR_ARG_INVALID);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\"\n", ipv4_str);
   }
 
   List* spaces = str_split(ipv4_str, '.');
@@ -103,10 +107,14 @@ error_t try_decimal_to_ipv4(const char* ipv4, char* result)
 static error_t try_get_ipv4_colon_range(const regex_t* ipv4_regex, const char* str, Ipv4Range* result)
 {
   List* addrs = str_split(str, ':');
+  if(addrs == NULL)
+  {
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \':\'\n", str);
+  }
   if(addrs->len != 2)
   {
     list_free(addrs);
-    return ERR(ERR_ARG_INVALID);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \':\'\n", str);
   }
 
   for(size_t i = 0; i < addrs->len; i++)
@@ -114,18 +122,21 @@ static error_t try_get_ipv4_colon_range(const regex_t* ipv4_regex, const char* s
     if(!regex_is_valid(ipv4_regex, addrs->data[i]))
     {
       list_free(addrs);
-      return ERR(ERR_ARG_INVALID);
+      return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs->data[i]);
     }
   }
 
   if(OK != try_ipv4_to_uint32(addrs->data[0], &result->lower)) return get_error_code();
   if(OK != try_ipv4_to_uint32(addrs->data[1], &result->upper)) return get_error_code();
+  if(result->lower > result->upper)
+  {
+    return ERR_MSG(ERR_ARG_INVALID, "Lower value of IPV4 address \"%s\" is greater than upper value\n", str);
+  }
 
   result->bits = count_bits(result->upper - result->lower);
   uint32_t diff = result->upper - result->lower;
   uint32_t limit = 1 << result->bits;
   uint32_t remainder = limit - diff - 1;
-  printf("lower = %d\nupper = %d\ndiff = %d\nlimit = %d\nremainder = %d\n", result->lower, result->upper, diff, limit, remainder);
   result->remainder = remainder;
   if(result->remainder > 0)
   {
@@ -142,13 +153,13 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
   if(addrs->len != 2)
   {
     list_free(addrs);
-    return ERR(ERR_ARG_INVALID);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \'/\'\n", str);
   }
 
   if(!regex_is_valid(regex, addrs->data[0]))
   {
     list_free(addrs);
-    return ERR(ERR_ARG_INVALID);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs->data[0]);
   }
 
   if(OK != try_ipv4_to_uint32(addrs->data[0], &result->lower)) return get_error_code();
@@ -160,7 +171,9 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
 
 error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4RangeFormat format, Ipv4Range* result)
 {
-  if(str == NULL) return false;
+  assert(ipv4_regex != NULL);
+  assert(str != NULL);
+  assert(result != NULL);
 
   switch (format)
   {

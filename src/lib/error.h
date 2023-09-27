@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define error_t uint8_t
 
@@ -15,26 +16,29 @@
 #define ERR_ARG_INVALID 3
 #define ERR_ARG_OUT_OF_RANGE 4
 
+#define ERR_MSG_SIZE 256
+
 typedef struct error {
   error_t code;
   uint16_t line;
   char file[64];
   char func[64];
-  char msg[256];
+  char msg[ERR_MSG_SIZE];
 } Error;
 
 error_t error_new(error_t error, uint16_t line, const char* file, const char* func);
 
 #define ERR(ERROR_T) error_new(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__)
 
-error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* msg);
+error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* format, ...)
+__THROWNL __attribute__ ((__format__ (__printf__, 5, 6)));
 
-#define ERR_MSG(ERROR_T, MSG) error_new_msg(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, MSG)
+#define ERR_MSG(ERROR_T, FORMAT, ...) error_new_msg(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, FORMAT, __VA_ARGS__)
 
 Error get_error();
 
 error_t get_error_code();
 
-void print_error(const Error* error);
+void print_error(const Error* error, bool verbose);
 
 #endif //IPCALC_ERROR_H
