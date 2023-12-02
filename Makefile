@@ -6,14 +6,17 @@ CFLAGS = -O \
 	-Wundef \
 	-Wformat=2 \
 	-g
+
 OBJ_FILES = obj/error.o \
 	obj/convert.o \
 	obj/bits.o \
 	obj/appstate.o \
 	obj/ipv4regex.o \
 	obj/ipv4addr.o \
+	obj/array.o \
 	obj/list.o \
-	obj/string.o
+	obj/string.o \
+	obj/file.o
 
 clean:
 	rm -v obj/*
@@ -37,6 +40,9 @@ list.o:
 string.o: list.o
 	$(CC) -g -c $(CFLAGS) src/lib/string.c -o obj/string.o
 
+file.o: list.o string.o
+	$(CC) -g -c $(CFLAGS) src/lib/file.c -o obj/file.o
+
 ipv4regex.o:
 	$(CC) -g -c $(CFLAGS) src/ipv4regex.c -o obj/ipv4regex.o
 
@@ -46,7 +52,8 @@ ipv4addr.o: error.o convert.o ipv4regex.o string.o
 appstate.o: list.o
 	$(CC) -g -c $(CFLAGS) src/appstate.c -o obj/appstate.o
 
-all: error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
+#all: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o test.o
+all: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
 	$(CC) $(CFLAGS) src/main.c $(OBJ_FILES) -o bin/ipcalc
 
 test: all
