@@ -1,26 +1,28 @@
 #include "appstate.h"
 #include "ipv4addr.h"
 #include "ipv4regex.h"
+#include "lib/file.h"
 #include <stdio.h>
 
 AppState app_state_init()
 {
   AppState state = {0};
-  state._formats = list_with_capacity(2);
-  list_add(state._formats, FORMAT_DECIMAL);
-  list_add(state._formats, FORMAT_IPV4);
+  state._formats = array_with_cap(char)(2);
+  state._formats.data[0] = FORMAT_IPV4;
+  state._formats.data[1] = FORMAT_DECIMAL;
 
   return state;
 }
 
 void app_state_free(AppState* self)
 {
-  list_free(self->_formats);
+  array_free(char)(&self->_formats);
 }
 
 inline bool validate_format(const AppState* self)
 {
-  return list_contains(self->_formats, self->format, (bool (*)(void *, void *)) str_eq);
+  return array_contains(char)(&self->_formats, self->format, (bool (*)(char *, char *)) str_eq);
+  //return list_contains(self->_formats, self->format, (bool (*)(void *, void *)) str_eq);
 }
 
 inline error_t app_state_convert(const AppState* self)
@@ -115,5 +117,24 @@ inline error_t app_state_print_range(const AppState* self)
     printf("%s\n", ip);
   }
 
+  return OK;
+}
+
+inline error_t app_state_print_groups(const AppState* self)
+{
+  List* lines = NULL;
+  if(OK != file_read_all_lines("countries.csv", lines))
+  {
+    Error e = get_error();
+    print_error(&e, self->verbose);
+    return e.code;
+  }
+
+  LIST_FOR(lines, i)
+  {
+    printf("[%zu] %s\n", i, (char*)lines->data[i]);
+  }
+
+  list_free(lines);
   return OK;
 }

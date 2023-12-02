@@ -4,6 +4,10 @@
 #include "appstate.h"
 #include "lib/error.h"
 
+#define OPT_ADD 1000
+#define OPT_UPDATE 1001
+#define OPT_DELETE 1002
+
 static struct option long_options[] = {
   {"help", no_argument, 0, 'h'},
   {"verbose", no_argument, 0, 'v'},
@@ -11,6 +15,10 @@ static struct option long_options[] = {
   {"format", required_argument, 0, 'f'},
   {"range", required_argument, 0, 'R'},
   {"print-range", required_argument, 0, 'P'},
+  {"group", no_argument, 0, 'G'},
+  {"add", no_argument, 0, OPT_ADD},
+  {"update", no_argument, 0, OPT_UPDATE},
+  {"delete", no_argument, 0, OPT_DELETE},
   {0, 0, 0, 0}
 };
 
@@ -24,7 +32,7 @@ int main(int argc, char** argv)
 
   if (argc > 1)
   {
-    while((c = getopt_long(argc, argv, "hvc:f:R:P:", long_options, &opt_index)) != -1)
+    while((c = getopt_long(argc, argv, "hvc:f:R:P:G", long_options, &opt_index)) != -1)
     {
       switch(c)
       {
@@ -59,6 +67,22 @@ int main(int argc, char** argv)
           break;
         case 'P':
           app_state.print_range = optarg;
+          break;
+        case 'G':
+          app_state.group = true;
+          printf("group\n");
+          break;
+        case OPT_ADD:
+          app_state.add = true;
+          printf("add\n");
+          break;
+        case OPT_UPDATE:
+          app_state.update = true;
+          printf("update\n");
+          break;
+        case OPT_DELETE:
+          app_state.delete = true;
+          printf("delete\n");
           break;
         default:
           printf("getopt returned character code %o \n", c);

@@ -21,7 +21,11 @@ typedef struct app_state
   char* range;
   char* print_range;
   char* format;
-  List* _formats;
+  bool group;
+  bool add;
+  bool update;
+  bool delete;
+  array(char) _formats;
 } AppState;
 
 AppState app_state_init();
@@ -35,5 +39,7 @@ error_t app_state_convert(const AppState* self);
 error_t app_state_compute_range(const AppState* self);
 
 error_t app_state_print_range(const AppState* self);
+
+error_t app_state_print_groups(const AppState* self);
 
 #endif //APPSTATE_H

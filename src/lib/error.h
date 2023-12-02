@@ -15,6 +15,8 @@
 #define ERR_ARG_NULL 1
 #define ERR_ARG_INVALID 3
 #define ERR_ARG_OUT_OF_RANGE 4
+#define ERR_FILE_NOT_FOUND 5
+#define ERR_MALLOC_FAIL 6
 
 #define ERR_MSG_SIZE 256
 

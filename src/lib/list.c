@@ -1,9 +1,10 @@
+#include <assert.h>
 #include "list.h"
 
 void list_free(List* self)
 {
-    free(self->data);
-    free(self);
+  free(self->data);
+  free(self);
 }
 
 List* list_with_capacity(size_t cap)
@@ -51,6 +52,22 @@ bool list_contains(const List* self, void* target, bool (*equals)(void* a, void*
   }
 
   return false;
+}
+
+void list_for_each(const List* self, void (*func)(void* iter, size_t index))
+{
+  assert(self != NULL);
+  assert(func != NULL);
+
+  for(size_t i = 0; i < self->len; i++)
+  {
+    func(self->data[i], i);
+  }
+}
+
+void list_clear(List* self)
+{
+  self->len = 0;
 }
 
 int list_get_longest(const List* self,  int (*callback)(void* obj))

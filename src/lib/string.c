@@ -1,7 +1,29 @@
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "stdlib.h"
 #include "string.h"
+
+IMPL_ARRAY(char)
+
+void strings_free(Strings* self)
+{
+  assert(self != NULL);
+  free(self->data);
+  free(self->_mem);
+  self->len = 0;
+}
+
+char* str_new_filled(size_t len, char c)
+{
+  char* str = malloc(len);
+  for(size_t i = 0; i < len; i++)
+  {
+    str[i] = c;
+  }
+  str[len] = '\0';
+  return str;
+}
 
 inline bool str_eq(const char* a, const char* b)
 {
@@ -22,9 +44,9 @@ inline bool strn_is_numeric(const char* src, size_t len)
   return true;
 }
 
-static int str_count_char(const char* src, size_t len, char c)
+static size_t str_count_char(const char* src, size_t len, char c)
 {
-    int count = 0;
+    size_t count = 0;
     for(size_t i = 0; i < len; i++)
     {
         if(src[i] == c)
@@ -35,65 +57,48 @@ static int str_count_char(const char* src, size_t len, char c)
     return count;
 }
 
-static int str_index_of_char_in_range(const char* src, char c, int start, int end)
+char* str_nsubstr(const char* src, size_t start, size_t end, char* dest, size_t max_len)
 {
-    for(int i = start; i < end; i++)
-    {
-        if(src[i] == '\0') return -1;
-        if(src[i] == c) return i;
-    }
-    return -1;
+  size_t size = end - start;
+  if(size > max_len)
+  {
+    strncpy(dest, &src[start], max_len);
+  }
+  else
+  {
+    strncpy(dest, &src[start], size);
+  }
+  return dest;
 }
 
-static char* str_substring(const char* src, int start, int end)
+array(char)* str_nsplit(const char* src, size_t len, char delim, char* dest, array(char)* result)
 {
-    int size = end - start + 1;
-    char* sub = malloc(size);
-    memcpy(sub, &src[start], size);
-    sub[size - 1] = '\0';
-    return sub;
+  assert(src != NULL);
+  assert(dest != NULL);
+  assert(result != NULL);
+  if(delim == '\0') return NULL;
+
+  strncpy(dest, src, len);
+  strtok_r(dest, &delim, result->data);
+  result->len = str_count_char(dest, len, delim);
+
+  return result;
 }
 
-List* str_split(const char* src, char delim)
+Strings str_split(const char* src, char delim)
 {
-    if(src == NULL) return NULL;
-    if(delim == '\0') return NULL;
+  assert(src != NULL);
 
-    size_t len = strlen(src);
+  size_t len = strlen(src);
+  Strings strings;
+  strings.data = malloc(sizeof(char*) * len);
+  strings._mem = str_new_filled(len, '\0');
 
-    int count = str_count_char(src, len, delim);
-    if(count == 0) return NULL;
+  array(char) x = array_init(char)(strings.data, 0);
+  str_nsplit(src, len, delim, strings._mem, &x);
 
-    int size = count + 1;
-    List* list = list_with_capacity(size);
-
-    int start = 0;
-    for(int i = 0; i < size; i++)
-    {
-        int end = str_index_of_char_in_range(src, delim, start, (int)len);
-        if(end == -1)
-        {
-            list_add(list, str_substring(src, start, (int)len));
-        }
-        else
-        {
-            list_add(list, str_substring(src, start, end));
-        }
-        start = end + 1;
-    }
-
-    return list;
-}
-
-char* str_new_filled(int len, char c)
-{
-    char* str = malloc(len);
-    for(int i = 0; i < len; i++)
-    {
-        str[i] = c;
-    }
-    str[len] = '\0';
-    return str;
+  strings.len = x.len;
+  return strings;
 }
 
 static bool is_whitespace(char c)

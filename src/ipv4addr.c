@@ -54,19 +54,19 @@ error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
     return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\"\n", ipv4_str);
   }
 
-  List* spaces = str_split(ipv4_str, '.');
-  if(spaces->len != 4)
+  Strings spaces = str_split(ipv4_str, '.');
+  if(spaces.len != 4)
   {
-    list_free(spaces);
+    strings_free(&spaces);
     return ERR(ERR_ARG_INVALID);
   }
 
-  uint8_t x1 = ipv4_space_to_byte(spaces->data[0]);
-  uint8_t x2 = ipv4_space_to_byte(spaces->data[1]);
-  uint8_t x3 = ipv4_space_to_byte(spaces->data[2]);
-  uint8_t x4 = ipv4_space_to_byte(spaces->data[3]);
+  uint8_t x1 = ipv4_space_to_byte(spaces.data[0]);
+  uint8_t x2 = ipv4_space_to_byte(spaces.data[1]);
+  uint8_t x3 = ipv4_space_to_byte(spaces.data[2]);
+  uint8_t x4 = ipv4_space_to_byte(spaces.data[3]);
 
-  list_free(spaces);
+  strings_free(&spaces);
   *result = ((uint32_t)x1 << 24) + ((uint32_t)x2 << 16) + ((uint32_t)x3 << 8) + (uint32_t)x4;
   return OK;
 }
@@ -105,28 +105,24 @@ error_t try_decimal_to_ipv4(const char* ipv4, char* result)
 
 static error_t try_get_ipv4_colon_range(const regex_t* ipv4_regex, const char* str, Ipv4Range* result)
 {
-  List* addrs = str_split(str, ':');
-  if(addrs == NULL)
+  Strings addrs = str_split(str, ':');
+  if(addrs.len != 2)
   {
-    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \':\'\n", str);
-  }
-  if(addrs->len != 2)
-  {
-    list_free(addrs);
+    strings_free(&addrs);
     return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \':\'\n", str);
   }
 
-  for(size_t i = 0; i < addrs->len; i++)
+  for(size_t i = 0; i < addrs.len; i++)
   {
-    if(!regex_is_valid(ipv4_regex, addrs->data[i]))
+    if(!regex_is_valid(ipv4_regex, addrs.data[i]))
     {
-      list_free(addrs);
-      return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs->data[i]);
+      strings_free(&addrs);
+      return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs.data[i]);
     }
   }
 
-  if(OK != try_ipv4_to_uint32(addrs->data[0], &result->lower)) return get_error_code();
-  if(OK != try_ipv4_to_uint32(addrs->data[1], &result->upper)) return get_error_code();
+  if(OK != try_ipv4_to_uint32(addrs.data[0], &result->lower)) return get_error_code();
+  if(OK != try_ipv4_to_uint32(addrs.data[1], &result->upper)) return get_error_code();
   if(result->lower > result->upper)
   {
     return ERR_MSG(ERR_ARG_INVALID, "Lower value of IPV4 address \"%s\" is greater than upper value\n", str);
@@ -142,33 +138,29 @@ static error_t try_get_ipv4_colon_range(const regex_t* ipv4_regex, const char* s
     result->bits--;
   }
 
-  list_free(addrs);
+  strings_free(&addrs);
   return OK;
 }
 
 static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, Ipv4Range* result)
 {
-  List* addrs = str_split(str, '/');
-  if(addrs == NULL)
+  Strings addrs = str_split(str, '/');
+  if(addrs.len != 2)
   {
-    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \'/\'\n", str);
-  }
-  if(addrs->len != 2)
-  {
-    list_free(addrs);
+    strings_free(&addrs);
     return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is missing the delimiter \'/\'\n", str);
   }
 
-  if(!regex_is_valid(regex, addrs->data[0]))
+  if(!regex_is_valid(regex, addrs.data[0]))
   {
-    list_free(addrs);
-    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs->data[0]);
+    strings_free(&addrs);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\n", (char*)addrs.data[0]);
   }
 
-  if(OK != try_ipv4_to_uint32(addrs->data[0], &result->lower)) return get_error_code();
-  if(OK != try_uint8_from_str(addrs->data[1], &result->bits)) return get_error_code();
+  if(OK != try_ipv4_to_uint32(addrs.data[0], &result->lower)) return get_error_code();
+  if(OK != try_uint8_from_str(addrs.data[1], &result->bits)) return get_error_code();
   result->upper = result->lower + (1 << result->bits);
-  list_free(addrs);
+  strings_free(&addrs);
   return OK;
 }
 
