@@ -7,12 +7,13 @@ void list_free(List* self)
   free(self);
 }
 
-List* list_with_capacity(size_t cap)
+List list_with_capacity(size_t type_size, size_t cap)
 {
-    List* self = malloc(sizeof(List*));
-    self->data = malloc(sizeof(void*) * cap);
-    self->cap = cap;
-    self->len = 0;
+    List self = {0};
+    self.type_size = type_size;
+    self.data = malloc(sizeof(void*) * cap);
+    self.cap = cap;
+    self.len = 0;
     return self;
 }
 
@@ -41,27 +42,29 @@ void list_add(List* self, void* obj)
     self->len++;
 }
 
-bool list_contains(const List* self, void* target, bool (*equals)(void* a, void* b))
+bool list_contains(const List* self, void* target, bool (*equals)(const void* a, const void* b))
 {
   if(self == NULL) return false;
   if(target == NULL) return false;
 
   for(size_t i = 0; i < self->len; i++)
   {
-    if(equals(target, self->data[i])) return true;
+    const void* item = (char*)self->data + (i * self->type_size);
+    if(equals(target, item)) return true;
   }
 
   return false;
 }
 
-void list_for_each(const List* self, void (*func)(void* iter, size_t index))
+void list_for_each(const List* self, void (*func)(const void* iter, size_t index))
 {
   assert(self != NULL);
   assert(func != NULL);
 
   for(size_t i = 0; i < self->len; i++)
   {
-    func(self->data[i], i);
+    const void* item = (char*)self->data + (i * self->type_size);
+    func(item, i);
   }
 }
 
@@ -70,7 +73,7 @@ void list_clear(List* self)
   self->len = 0;
 }
 
-int list_get_longest(const List* self,  int (*callback)(void* obj))
+int list_get_longest(const List* self, int (*callback)(void* obj))
 {
     if(self == NULL) return -1;
 

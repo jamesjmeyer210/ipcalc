@@ -10,6 +10,7 @@
 
 typedef struct list {
     void** data;
+    size_t type_size;
     size_t len;
     size_t cap;
 } List;
@@ -20,15 +21,15 @@ typedef struct list {
 
 void list_free(List* self);
 
-List* list_with_capacity(size_t cap);
+List list_with_capacity(size_t type_size, size_t cap);
 
 void list_add(List* self, void* obj);
 
-bool list_contains(const List* self, void* target, bool (*equals)(void* a, void* b));
+bool list_contains(const List* self, void* target, bool (*equals)(const void* a, const void* b));
 
 void list_clear(List* self);
 
-void list_for_each(const List* self, void (*func)(void* iter, size_t index));
+void list_for_each(const List* self, void (*func)(const void* iter, size_t index));
 
 int list_get_longest(const List* self,  int (*callback)(void* obj));
 

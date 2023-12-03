@@ -42,6 +42,7 @@ int main(int argc, char** argv)
           printf(" -c, --convert [ip address]\t\t\t\tBy default, converts an IP address in IP notation (x.x.x.x) to a decimal number. Use with (-f/--format) to specify the input type.\n");
           printf(" -R, --range [start ip address]:[end ip address]\tComputes the slash notation of a range of IP Addresses\n");
           printf(" -P, --print-range [ip address]\t\t\t\tPrints all of the IP addresses with a range.\n");
+          printf(" -f, --format (%s/%s)\n", FORMAT_IPV4, FORMAT_DECIMAL);
           break;
         case 'v':
           app_state.verbose = true;
