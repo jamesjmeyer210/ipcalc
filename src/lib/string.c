@@ -33,6 +33,34 @@ inline bool str_eq(const char* a, const char* b)
   return strcmp(a, b) == 0;
 }
 
+IndexOfResult strn_index_of(const char* self, size_t len, char target)
+{
+  IndexOfResult r = {0};
+
+  if(self == NULL) return r;
+  if(len == 0) return r;
+
+  for(size_t i = 0; i < len && self[i] != '\0'; i++){
+    if(self[i] == target){
+      r.found = true;
+      r.index = i;
+      return r;
+    }
+  }
+
+  return r;
+}
+
+void str_nreplace(char* src, size_t len, char target, char c)
+{
+  if(src == NULL) return;
+  for(size_t i = 0; i < len; i++){
+    if(src[i] == target){
+      src[i] = c;
+    }
+  }
+}
+
 inline bool strn_is_numeric(const char* src, size_t len)
 {
   if(src == NULL) return false;
@@ -90,14 +118,24 @@ Strings str_split(const char* src, char delim)
   assert(src != NULL);
 
   size_t len = strlen(src);
+  size_t count = str_count_char(src, len, delim) + 1;
+
   Strings strings;
-  strings.data = malloc(sizeof(char*) * len);
-  strings._mem = str_new_filled(len, '\0');
+  strings.count = count;
+  strings.data = malloc(sizeof(char*) * count);
+  strings.len = len;
+  strings._mem = malloc(sizeof(char) * len);
 
-  array(char) x = array_init(char)(strings.data, 0);
-  str_nsplit(src, len, delim, strings._mem, &x);
+  strncpy(strings._mem, src, len);
+  str_nreplace(strings._mem, len, delim, '\0');
 
-  strings.len = x.len;
+  size_t index = 0;
+  for(size_t i = 0; i < count; i++)
+  {
+    strings.data[i] = &strings._mem[index];
+    index += strlen(strings.data[i]) + 1;
+  }
+
   return strings;
 }
 

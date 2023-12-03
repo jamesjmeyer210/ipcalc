@@ -13,15 +13,25 @@ TYPE_ARRAY(char)
 typedef struct strings
 {
   char** data;
+  size_t count;
   size_t len;
   char* _mem;
 } Strings;
+
+typedef struct index_of_result {
+  size_t index;
+  bool found;
+} IndexOfResult;
 
 void strings_free(Strings* self);
 
 char* str_new_filled(size_t len, char c);
 
 bool str_eq(const char* a, const char* b);
+
+IndexOfResult strn_index_of(const char* self, size_t len, char target);
+
+void str_nreplace(char* src, size_t len, char target, char c);
 
 bool strn_is_numeric(const char* src, size_t len);
 

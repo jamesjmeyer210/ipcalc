@@ -21,7 +21,7 @@ void app_state_free(AppState* self)
 
 inline bool validate_format(const AppState* self)
 {
-  return array_contains(char)(&self->_formats, self->format, (bool (*)(char *, char *)) str_eq);
+  return array_contains(char)(&self->_formats, self->format, (bool (*)(const char *, const char *)) str_eq);
   //return list_contains(self->_formats, self->format, (bool (*)(void *, void *)) str_eq);
 }
 

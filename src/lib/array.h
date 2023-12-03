@@ -27,7 +27,7 @@ array(T) array_with_cap(T)(size_t cap); \
                       \
 void array_free(T)(array(T)* self); \
                       \
-bool array_contains(T)(const array(T)* self, T* target, bool (*equals)(T* a, T* b));
+bool array_contains(T)(const array(T)* self, T* target, bool (*equals)(const T* a, const T* b));
 
 #define IMPL_ARRAY(T) \
 array(T) array_init(T)(T** src, size_t len) \
@@ -50,7 +50,7 @@ array(T) array_with_cap(T)(size_t cap)      \
   return array_init(T)(mem, cap);           \
 }                     \
                       \
-bool array_contains(T)(const array(T)* self, T* target, bool (*equals)(T* a, T* b)) \
+bool array_contains(T)(const array(T)* self, T* target, bool (*equals)(const T* a, const T* b)) \
 {                     \
   assert(self != NULL);                     \
   if(target == NULL)  \
