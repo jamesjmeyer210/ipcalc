@@ -18,46 +18,58 @@ OBJ_FILES = obj/error.o \
 	obj/string.o \
 	obj/file.o
 
+MAIN=src/main.c
+SRC=src/lib
+OBJ=obj
+SRCS=$(wildcard $(SRC)/*.c)
+OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
+
+TEST=test
+TESTS=$(wildcard $(TEST)/*c)
+TEST_BINS=$(patsubst $(TEST)/%.c, $(TEST)/bin/%, $(TESTS))
+
+LIB_DIR=lib
+LIB = $(LIB_DIR)/libipcalc.a
+
+$(LIB): $(LIB_DIR) $(OBJ) $(OBJS)
+	$(RM) $(LIB)
+	ar -rcs $(LIB) $(OBJS)
+
+# Compile all the object files
+$(OBJ)/%.o: $(SRC)/%.c $(SRC)/%.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compile all the object files
+$(OBJ)/%.o: $(SRC)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Collect all the *.c files in test/ and compile them to individual binaries, linking the library
+$(TEST)/bin/%: $(TEST)/%.c
+	$(CC) $(CFLAGS) $< -L./$(LIB_DIR) $(LIB) -o $@ -lcriterion
+
+# Make the test binary directory
+$(TEST)/bin:
+	mkdir -p $@
+
+# Make the obj directory
+$(OBJ):
+	mkdir -p $@
+
+# Make the library directory
+$(LIB_DIR):
+	mkdir -p $@
+
+# Removes the contents of all generated directories
 clean:
 	rm -v obj/*
 	rm -v bin/*
+	rm -v lib/*
+	rm -v test/bin/*
 
-error.o:
-	$(CC) -g -c $(CFLAGS) src/lib/error.c -o obj/error.o
+all: $(LIB)
 
-convert.o: error.o
-	$(CC) -g -c $(CFLAGS) src/lib/convert.c -o obj/convert.o
+debug: all
+	$(CC) $(CFLAGS) $(MAIN) -L./$(LIB_DIR) $(LIB) -o bin/ipcalc
 
-bits.o:
-	$(CC) -g -c $(CFLAGS) src/lib/bits.c -o obj/bits.o
-
-bits-test:
-	$(CC) $(CFLAGS) -D TEST=1 src/lib/bits.c -o bin/bits-test
-
-list.o:
-	$(CC) -g -c $(CFLAGS) src/lib/list.c -o obj/list.o
-
-string.o: list.o
-	$(CC) -g -c $(CFLAGS) src/lib/string.c -o obj/string.o
-
-file.o: list.o string.o
-	$(CC) -g -c $(CFLAGS) src/lib/file.c -o obj/file.o
-
-ipv4regex.o:
-	$(CC) -g -c $(CFLAGS) src/ipv4regex.c -o obj/ipv4regex.o
-
-ipv4addr.o: error.o convert.o ipv4regex.o string.o
-	$(CC) -g -c $(CFLAGS) src/ipv4addr.c -o obj/ipv4addr.o
-
-appstate.o: list.o
-	$(CC) -g -c $(CFLAGS) src/appstate.c -o obj/appstate.o
-
-lib: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
-	ar -rcs lib/libipcalc.a obj/*.o
-
-all: lib
-	$(CC) -o bin/ipcalc src/main.c lib/libipcalc.a
-
-test: lib
-	$(CC) -o bin/ipcalc-test test/test.c lib/libipcalc.a -lcriterion
-	#$(CC) -o bin/ipcalc-test test/test.c lib/libipcalc.a
+test: $(LIB) $(TEST)/bin $(TEST_BINS)
+	for test in $(TEST_BINS) ; do ./$$test ; done
