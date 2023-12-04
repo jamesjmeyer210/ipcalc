@@ -22,72 +22,85 @@ static struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
+static void print_help()
+{
+  printf("ipcalc\n\n"
+         " -h, --help\t\t\t\t\t\t"
+         "Print options\n"
+         " -c, --convert [ip address]\t\t\t\t"
+         "By default, converts an IP address in IP notation (x.x.x.x) to a decimal number. Use with (-f/--format) to specify the input type.\n"
+         " -R, --range [start ip address]:[end ip address]\t"
+         "Computes the slash notation of a range of IP Addresses\n"
+         " -P, --print-range [ip address]\t\t\t\t"
+         "Prints all of the IP addresses with a range.\n"
+         " -f, --format (%s/%s)\t\t\t\t"
+         "Specifies the format of the IPv4 address.\n", FORMAT_IPV4, FORMAT_DECIMAL);
+}
+
 int main(int argc, char** argv)
 {
+  if(argc == 1)
+  {
+    print_help();
+    exit(0);
+  }
+
   AppState app_state = app_state_init();
   error_t status = OK;
 
   int c;
   int opt_index = 0;
 
-  if (argc > 1)
+  while((c = getopt_long(argc, argv, "hvc:f:R:P:G", long_options, &opt_index)) != -1)
   {
-    while((c = getopt_long(argc, argv, "hvc:f:R:P:G", long_options, &opt_index)) != -1)
+    switch(c)
     {
-      switch(c)
-      {
-        case 'h':
-          printf("ipcalc\n\n");
-          printf(" -h, --help\t\t\t\t\t\tPrint options\n");
-          printf(" -c, --convert [ip address]\t\t\t\tBy default, converts an IP address in IP notation (x.x.x.x) to a decimal number. Use with (-f/--format) to specify the input type.\n");
-          printf(" -R, --range [start ip address]:[end ip address]\tComputes the slash notation of a range of IP Addresses\n");
-          printf(" -P, --print-range [ip address]\t\t\t\tPrints all of the IP addresses with a range.\n");
-          printf(" -f, --format (%s/%s)\n", FORMAT_IPV4, FORMAT_DECIMAL);
-          break;
-        case 'v':
-          app_state.verbose = true;
-          break;
-        case 'c':
-          if(app_state.convert != NULL)
-          {
-            fprintf(stderr, "-c/--convert must only be invoked once\n");
-            exit(1);
-          }
-          app_state.convert = optarg;
-          break;
-        case 'f':
-          app_state.format = optarg;
-          if(!validate_format(&app_state))
-          {
-            fprintf(stderr, "%s is not a valid format\n", app_state.format);
-            exit(1);
-          }
-          break;
-        case 'R':
-          app_state.range = optarg;
-          break;
-        case 'P':
-          app_state.print_range = optarg;
-          break;
-        case 'G':
-          app_state.group = true;
-          printf("group\n");
-          break;
-        case OPT_ADD:
-          app_state.add = true;
-          printf("add\n");
-          break;
-        case OPT_UPDATE:
-          app_state.update = true;
-          printf("update\n");
-          break;
-        case OPT_DELETE:
-          app_state.delete = true;
-          printf("delete\n");
-          break;
-        default:
-          printf("getopt returned character code %o \n", c);
-      }
+      case 'h':
+        print_help();
+        break;
+      case 'v':
+        app_state.verbose = true;
+        break;
+      case 'c':
+        if(app_state.convert != NULL)
+        {
+          fprintf(stderr, "-c/--convert must only be invoked once\n");
+          exit(1);
+        }
+        app_state.convert = optarg;
+        break;
+      case 'f':
+        app_state.format = optarg;
+        if(!validate_format(&app_state))
+        {
+          fprintf(stderr, "%s is not a valid format\n", app_state.format);
+          exit(1);
+        }
+        break;
+      case 'R':
+        app_state.range = optarg;
+        break;
+      case 'P':
+        app_state.print_range = optarg;
+        break;
+      case 'G':
+        app_state.group = true;
+        printf("group\n");
+        break;
+      case OPT_ADD:
+        app_state.add = true;
+        printf("add\n");
+        break;
+      case OPT_UPDATE:
+        app_state.update = true;
+        printf("update\n");
+        break;
+      case OPT_DELETE:
+        app_state.delete = true;
+        printf("delete\n");
+        break;
+      default:
+        printf("getopt returned character code %o \n", c);
     }
   }
 

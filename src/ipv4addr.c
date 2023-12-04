@@ -55,10 +55,10 @@ error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
   }
 
   Strings spaces = str_split(ipv4_str, '.');
-  if(spaces.len != 4)
+  if(spaces.count != 4)
   {
     strings_free(&spaces);
-    return ERR(ERR_ARG_INVALID);
+    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" could not be parsed\n", ipv4_str);
   }
 
   uint8_t x1 = ipv4_space_to_byte(spaces.data[0]);

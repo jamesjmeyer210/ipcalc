@@ -19,16 +19,19 @@ void app_state_free(AppState* self)
   array_free(char)(&self->_formats);
 }
 
+#define LOG_DEBUG(self, format, ...) if(self->verbose) printf(format, __VA_ARGS__)
+
 inline bool validate_format(const AppState* self)
 {
   return array_contains(char)(&self->_formats, self->format, (bool (*)(const char *, const char *)) str_eq);
-  //return list_contains(self->_formats, self->format, (bool (*)(void *, void *)) str_eq);
 }
 
 inline error_t app_state_convert(const AppState* self)
 {
   if(self->format == NULL || str_eq(self->format, FORMAT_DECIMAL))
   {
+    LOG_DEBUG(self, "DBG: Attempting to convert %s format\n", FORMAT_DECIMAL);
+
     uint32_t x;
     if(OK != try_ipv4_to_uint32(self->convert, &x))
     {
@@ -41,6 +44,8 @@ inline error_t app_state_convert(const AppState* self)
 
   if(str_eq(self->format, FORMAT_IPV4))
   {
+    LOG_DEBUG(self, "DBG: Attempting to convert %s format\n", FORMAT_IPV4);
+
     char result[15];
     if(OK != try_decimal_to_ipv4(self->convert, result))
     {
