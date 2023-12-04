@@ -55,9 +55,8 @@ appstate.o: list.o
 lib: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
 	ar -rcs lib/libipcalc.a obj/*.o
 
-#all: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o test.o
-all: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
-	$(CC) $(CFLAGS) src/main.c $(OBJ_FILES) -o bin/ipcalc
+all: lib
+	$(CC) -o bin/ipcalc src/main.c lib/libipcalc.a
 
 test: all
 	$(CC) $(CFLAGS) test/test.c $(OBJ_FILES) -o bin/ipcalc-test
