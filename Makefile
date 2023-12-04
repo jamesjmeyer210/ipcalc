@@ -20,6 +20,7 @@ OBJ_FILES = obj/error.o \
 
 MAIN=src/main.c
 SRC=src/lib
+
 OBJ=obj
 SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
@@ -73,3 +74,34 @@ debug: all
 
 test: $(LIB) $(TEST)/bin $(TEST_BINS)
 	for test in $(TEST_BINS) ; do ./$$test ; done
+
+# auto-generated
+appstate.o:
+	$(CC) $(CFLAGS) -c src/lib/appstate.c -o obj/appstate.o
+
+bits.o:
+	$(CC) $(CFLAGS) -c src/lib/bits.c -o obj/bits.o
+
+convert.o:
+	$(CC) $(CFLAGS) -c src/lib/convert.c -o obj/convert.o
+
+error.o:
+	$(CC) $(CFLAGS) -c src/lib/error.c -o obj/error.o
+
+file.o:
+	$(CC) $(CFLAGS) -c src/lib/file.c -o obj/file.o
+
+ipv4addr.o:
+	$(CC) $(CFLAGS) -c src/lib/ipv4addr.c -o obj/ipv4addr.o
+
+ipv4regex.o:
+	$(CC) $(CFLAGS) -c src/lib/ipv4regex.c -o obj/ipv4regex.o
+
+list.o:
+	$(CC) $(CFLAGS) -c src/lib/list.c -o obj/list.o
+
+string.o:
+	$(CC) $(CFLAGS) -c src/lib/string.c -o obj/string.o
+
+main: appstate.o bits.o convert.o error.o file.o ipv4addr.o ipv4regex.o list.o string.o
+	$(CC) $(CFLAGS) appstate.o bits.o convert.o error.o file.o ipv4addr.o ipv4regex.o list.o string.o  src/main.c -o bin/ipcalc

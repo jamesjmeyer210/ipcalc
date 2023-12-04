@@ -1,8 +1,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "stdlib.h"
+#include <stdlib.h>
 #include "string.h"
+#include <stdio.h>
+#include <stdint.h>
 
 IMPL_ARRAY(char)
 
@@ -28,9 +30,7 @@ char* str_new_filled(size_t len, char c)
 
 inline bool str_eq(const char* a, const char* b)
 {
-  if(a == NULL && b == NULL) return true;
-  if(a == NULL) return false;
-  if(b == NULL) return false;
+  if(a == NULL || b == NULL) return true;
   return strcmp(a, b) == 0;
 }
 
@@ -68,7 +68,9 @@ inline bool strn_is_numeric(const char* src, size_t len)
 
   for(size_t i = 0; i < len; i++)
   {
-    if((src[i] - 48) >= 10) return false;
+    uint8_t c = (uint8_t)src[i];
+
+    if(c < (uint8_t)'0' || c > (uint8_t)'9') return false;
   }
   return true;
 }
