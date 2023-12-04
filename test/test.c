@@ -1,21 +1,40 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include "../src/lib/test.h"
 #include "../src/lib/string.h"
 #include "../src/ipv4addr.h"
-#include "../src/lib/convert.h"
+#include "criterion/criterion.h"
 
-typedef struct test {
-  char* name;
-  void (*func)(void);
-} Test;
+Test(str_tests, str_eq_test)
+{
+  const char* a = "foo";
+  const char* b = "foo";
 
-typedef struct test_collection {
-  Test* n;
-  size_t count;
-} TestCollection;
+  cr_assert_str_eq(a, b);
+  cr_assert(true == str_eq(a, b), "str_eq(%s, %s) returns true", a, b);
+}
 
+Test(str_tests, str_split_test)
+{
+  const char* ipv4 = "198.162.0.1";
+  Strings spaces = str_split(ipv4, '.');
+
+  cr_assert(spaces.count == 4, "spaces.count == %d", 4);
+
+  cr_expect(spaces.data[0] != NULL);
+  cr_assert_str_eq("198", spaces.data[0]);
+
+  cr_expect(spaces.data[1] != NULL);
+  cr_assert_str_eq("162", spaces.data[1]);
+
+  cr_expect(spaces.data[2] != NULL);
+  cr_assert_str_eq("0", spaces.data[2]);
+
+  cr_expect(spaces.data[3] != NULL);
+  cr_assert_str_eq("1", spaces.data[3]);
+
+  strings_free(&spaces);
+}
+
+/*
 static void str_split_test()
 {
   const char* ipv4 = "198.162.0.1";
@@ -80,7 +99,8 @@ static void str_nsplit_test()
 {
   char* src = "127.0.0.1";
   char copy[15] = {'\0'};
-  /*array(char) x = array_init(char)(malloc(sizeof(char*) * 4), 4);
+  */
+/*array(char) x = array_init(char)(malloc(sizeof(char*) * 4), 4);
 
   array(char)* y = str_nsplit(src, '.', copy, &x);
 
@@ -90,7 +110,8 @@ static void str_nsplit_test()
   ASSERT(str_eq("0", x.data[2]));
   ASSERT(str_eq("1", x.data[3]));
 
-  array_free(char)(y);*/
+  array_free(char)(y);*//*
+
 }
 
 static void string_tests()
@@ -125,37 +146,8 @@ static void try_uint8_from_str_test()
   ASSERT(OK == try_uint8_from_str("9", &x) && (9 == x))
   ASSERT(OK == try_uint8_from_str("88", &x) && (88 == x))
   ASSERT(OK == try_uint8_from_str("255", &x) && (255 == x))
-  /*ASSERT(4294967295 == uint32_from_str("4294967295"))
-  ASSERT(0 == uint32_from_str("4294967296"))*/
-}
+  */
+/*ASSERT(4294967295 == uint32_from_str("4294967295"))
+  ASSERT(0 == uint32_from_str("4294967296"))*//*
 
-int main(int argc, char** argv)
-{
-  printf("%d\n", argc);
-  if (argc == 1)
-  {
-    try_ipv4_to_int32_test();
-    string_tests();
-    try_uint8_from_str_test();
-    exit(0);
-  }
-
-  TestCollection tests = {0};
-  tests.n = malloc(sizeof(Test) * 100);
-  Test t = { .name = "str_split_test", .func = &str_split_test };
-  tests.n[0] = t;
-  tests.count++;
-
-  for(int i = 1; i < argc; i++)
-  {
-    for(size_t j = 0; j < tests.count; j++)
-    {
-      if(str_eq(argv[i], tests.n[j].name))
-      {
-        tests.n[j].func();
-      }
-    }
-  }
-
-  exit(0);
-}
+}*/

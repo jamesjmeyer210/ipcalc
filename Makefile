@@ -58,5 +58,6 @@ lib: file.o error.o bits.o convert.o appstate.o ipv4regex.o ipv4addr.o
 all: lib
 	$(CC) -o bin/ipcalc src/main.c lib/libipcalc.a
 
-test: all
-	$(CC) $(CFLAGS) test/test.c $(OBJ_FILES) -o bin/ipcalc-test
+test: lib
+	$(CC) -o bin/ipcalc-test test/test.c lib/libipcalc.a -lcriterion
+	#$(CC) -o bin/ipcalc-test test/test.c lib/libipcalc.a
