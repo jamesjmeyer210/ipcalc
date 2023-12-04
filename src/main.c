@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include "appstate.h"
+#include "lib/appstate.h"
 #include "lib/error.h"
 
 #define OPT_ADD 1000

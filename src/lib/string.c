@@ -11,6 +11,7 @@ void strings_free(Strings* self)
   assert(self != NULL);
   free(self->data);
   free(self->_mem);
+  self->count = 0;
   self->len = 0;
 }
 

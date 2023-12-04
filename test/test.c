@@ -1,6 +1,6 @@
 #include <string.h>
 #include "../src/lib/string.h"
-#include "../src/ipv4addr.h"
+#include "../src/lib/ipv4addr.h"
 #include "criterion/criterion.h"
 
 Test(str_tests, str_eq_test)
@@ -32,6 +32,8 @@ Test(str_tests, str_split_test)
   cr_assert_str_eq("1", spaces.data[3]);
 
   strings_free(&spaces);
+  cr_expect(spaces.count == 0);
+  cr_expect(spaces.len == 0);
 }
 
 /*
