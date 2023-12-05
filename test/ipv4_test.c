@@ -45,16 +45,10 @@ Test(ipv4_tests, try_uint32_to_ipv4_returns_error)
   cr_assert(ERR_ARG_NULL == try_uint32_to_ipv4(0, ipv4));
 }
 
-/*
-static void try_uint8_from_str_test()
+Test(ipv4_tests, ipv4_str_from_str_test)
 {
-  uint8_t x;
-  ASSERT(OK == try_uint8_from_str("0", &x) && (0 == x))
-  ASSERT(OK == try_uint8_from_str("9", &x) && (9 == x))
-  ASSERT(OK == try_uint8_from_str("88", &x) && (88 == x))
-  ASSERT(OK == try_uint8_from_str("255", &x) && (255 == x))
-  */
-/*ASSERT(4294967295 == uint32_from_str("4294967295"))
-  ASSERT(0 == uint32_from_str("4294967296"))*//*
+  char* ipv4 = NULL;
 
-}*/
+  Ipv4StrResult r = ipv4_str_from_str(ipv4);
+  cr_assert(ERR_ARG_NULL == r.status);
+}

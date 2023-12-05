@@ -5,7 +5,6 @@
 #ifndef LIB_STRING_H
 #define LIB_STRING_H
 
-#include "list.h"
 #include "array.h"
 
 TYPE_ARRAY(char)
