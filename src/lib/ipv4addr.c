@@ -43,33 +43,27 @@ static uint8_t ipv4_space_to_byte(const char* ipv4_space)
   return x;
 }
 
-Ipv4StrResult ipv4_str_from_str(const char* ipv4_str)
+error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result)
 {
-  Ipv4StrResult r = {0};
-  if(ipv4_str == NULL)
-  {
-    r.status = ERR_MSG(ERR_ARG_NULL, "Argument %s is null", "ipv4_str");
-  }
+  if(ipv4_str == NULL) return ERR_MSG(ERR_ARG_NULL, "Argument %s is null", "ipv4_str");
+  if(result == NULL) return ERR_MSG(ERR_ARG_NULL, "Argument %s is null", "result");
 
   regex_t regex = init_ipv4_regex();
   if(regex_is_valid(&regex, ipv4_str))
   {
-    r.value.format = string;
-    r.value.str = ipv4_str;
-    r.status = OK;
-    return r;
+    result->format = string;
+    result->str = ipv4_str;
+    return OK;
   }
 
   if(strn_is_numeric(ipv4_str, strlen(ipv4_str)))
   {
-    r.value.format = decimal;
-    r.value.str = ipv4_str;
-    r.status = OK;
-    return r;
+    result->format = decimal;
+    result->str = ipv4_str;
+    return OK;
   }
 
-  r.status = ERR_MSG(ERR_ARG_INVALID, "Could not identify a format for \"%s\"", ipv4_str);
-  return r;
+  return ERR_MSG(ERR_ARG_INVALID, "Could not identify a format for \"%s\"", ipv4_str);
 }
 
 error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)

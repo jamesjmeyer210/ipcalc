@@ -20,7 +20,7 @@ inline error_t error_new(error_t error, uint16_t line, const char* file, const c
   return error;
 }
 
-inline error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* format, ...)
+inline error_t error_new_msg(error_t error, uint16_t line, const char* file, const char* func, const char* format, ...)
 {
   Error e;
   e.code = error;
@@ -38,6 +38,32 @@ inline error_t error_new_msg(error_t error, uint32_t line, const char* file, con
 
   memcpy(&_error, &e, sizeof(Error));
   return error;
+}
+
+inline Error error_new_get(error_t error, uint16_t line, const char* file, const char* func)
+{
+  Error e;
+  e.code = error;
+  e.line = line;
+  strncpy(e.file, file, 64);
+  strncpy(e.func, func, 64);
+  memset(e.msg, '\0', 256);
+  return e;
+}
+
+Error error_new_msg_get(error_t error, uint16_t line, const char* file, const char* func, const char* format, ...)
+{
+  Error e;
+  e.code = error;
+  e.line = line;
+  strncpy(e.file, file, 64);
+  strncpy(e.func, func, 64);
+
+  va_list args;
+  va_start(args, format);
+  vsnprintf(e.msg, ERR_MSG_SIZE, format, args);
+  va_end(args);
+  return e;
 }
 
 Error get_error()

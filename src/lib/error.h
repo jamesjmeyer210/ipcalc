@@ -30,17 +30,26 @@ typedef struct error {
 
 error_t error_new(error_t error, uint16_t line, const char* file, const char* func);
 
-#define ERR(ERROR_T) error_new(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__)
+Error error_new_get(error_t error, uint16_t line, const char* file, const char* func);
 
-error_t error_new_msg(error_t error, uint32_t line, const char* file, const char* func, const char* format, ...)
+error_t error_new_msg(error_t error, uint16_t line, const char* file, const char* func, const char* format, ...)
 __THROWNL __attribute__ ((__format__ (__printf__, 5, 6)));
 
-#define ERR_MSG(ERROR_T, FORMAT, ...) error_new_msg(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, FORMAT, __VA_ARGS__)
+Error error_new_msg_get(error_t error, uint16_t line, const char* file, const char* func, const char* format, ...)
+__THROWNL __attribute__ ((__format__ (__printf__, 5, 6)));
 
 Error get_error();
 
 error_t get_error_code();
 
 void print_error(const Error* error, bool verbose);
+
+#define ERR(ERROR_T) error_new(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__)
+
+#define ERR_GET(ERROR_T) error_new_get(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__)
+
+#define ERR_MSG(ERROR_T, FORMAT, ...) error_new_msg(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, FORMAT, __VA_ARGS__)
+
+#define ERR_MSG_GET(ERROR_T, FORMAT, ...) error_new_msg_get(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, FORMAT, __VA_ARGS__)
 
 #endif //IPCALC_ERROR_H

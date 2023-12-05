@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <regex.h>
 #include "error.h"
+#include "result.h"
 
 typedef enum ipv4_format {
   string,
@@ -16,13 +17,7 @@ typedef struct ipv4_str {
   const char* str;
 } Ipv4Str;
 
-typedef struct ipv4_str_result
-{
-  Ipv4Str value;
-  error_t status;
-} Ipv4StrResult;
-
-Ipv4StrResult ipv4_str_from_str(const char* ipv4_str);
+error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result);
 
 typedef struct ipv4_range {
   uint32_t upper;
