@@ -75,33 +75,3 @@ debug: all
 
 test: $(LIB) $(TEST)/bin $(TEST_BINS)
 	for test in $(TEST_BINS) ; do ./$$test ; done
-
-#
-# Explicit Targets
-#
-error.o: $(OBJ)
-	$(CC) $(CFLAGS) -c $(SRC)/error.c -o obj/error.o
-
-bits.o: $(OBJ)
-	$(CC) $(CFLAGS) -c $(SRC)/bits.c -o obj/bits.o
-
-string.o: $(OBJ)
-	$(CC) $(CFLAGS) -c $(SRC)/string.c -o obj/string.o
-
-convert.o: $(OBJ) error.o string.o
-	$(CC) $(CFLAGS) -c $(SRC)/convert.c -o obj/convert.o
-
-ipv4regex.o: $(OBJ) error.o
-	$(CC) $(CFLAGS) -c $(SRC)/ipv4regex.c -o obj/ipv4regex.o
-
-ipv4addr.o: $(OBJ) error.o bits.o string.o ipv4regex.o
-	$(CC) $(CFLAGS) -c $(SRC)/ipv4addr.c -o obj/ipv4addr.o
-
-#
-# Explicit test targets
-#
-ipv4_test: $(TEST)/bin ipv4addr.o
-	$(CC) $(CFLAGS) \
-	$(OBJ)/ipv4addr.o $(OBJ)/convert.o $(OBJ)/error.o $(OBJ)/bits.o $(OBJ)/string.o $(OBJ)/ipv4regex.o $(TEST)/ipv4_test.c \
-	-o $(TEST_BIN)/ipv4_test -lcriterion
-	./$(TEST_BIN)/ipv4_test
