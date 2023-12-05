@@ -26,7 +26,7 @@ typedef struct ipv4_range {
   uint32_t remainder;
 } Ipv4Range;
 
-error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result);
+error_t try_ipv4_to_uint32(const Ipv4Str* ipv4_str, uint32_t* result);
 
 error_t try_uint32_to_ipv4(uint32_t ipv4, char* result);
 

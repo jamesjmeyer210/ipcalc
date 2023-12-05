@@ -66,32 +66,27 @@ error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result)
   return ERR_MSG(ERR_ARG_INVALID, "Could not identify a format for \"%s\"", ipv4_str);
 }
 
-error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
+error_t try_ipv4_to_uint32(const Ipv4Str* ipv4_str, uint32_t* result)
 {
   ERR_IF_NULL(ipv4_str);
   ERR_IF_NULL(result);
 
-  regex_t regex = init_ipv4_regex();
-  if(!regex_is_valid(&regex, ipv4_str))
-  {
-    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" is invalid\"\n", ipv4_str);
+  switch (ipv4_str->format) {
+    case string:
+      {
+        Strings spaces = str_split(ipv4_str->str, '.');
+        uint8_t x1 = ipv4_space_to_byte(spaces.data[0]);
+        uint8_t x2 = ipv4_space_to_byte(spaces.data[1]);
+        uint8_t x3 = ipv4_space_to_byte(spaces.data[2]);
+        uint8_t x4 = ipv4_space_to_byte(spaces.data[3]);
+
+        strings_free(&spaces);
+        *result = ((uint32_t)x1 << 24) + ((uint32_t)x2 << 16) + ((uint32_t)x3 << 8) + (uint32_t)x4;
+      }
+      return OK;
+    case decimal:
+      return try_uint32_from_str(ipv4_str->str, result);
   }
-
-  Strings spaces = str_split(ipv4_str, '.');
-  if(spaces.count != 4)
-  {
-    strings_free(&spaces);
-    return ERR_MSG(ERR_ARG_INVALID, "IPV4 address \"%s\" could not be parsed\n", ipv4_str);
-  }
-
-  uint8_t x1 = ipv4_space_to_byte(spaces.data[0]);
-  uint8_t x2 = ipv4_space_to_byte(spaces.data[1]);
-  uint8_t x3 = ipv4_space_to_byte(spaces.data[2]);
-  uint8_t x4 = ipv4_space_to_byte(spaces.data[3]);
-
-  strings_free(&spaces);
-  *result = ((uint32_t)x1 << 24) + ((uint32_t)x2 << 16) + ((uint32_t)x3 << 8) + (uint32_t)x4;
-  return OK;
 }
 
 error_t try_uint32_to_ipv4(uint32_t ipv4, char* result)
