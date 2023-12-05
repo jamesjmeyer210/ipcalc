@@ -23,29 +23,29 @@ Test(ipv4_tests, try_uint32_to_ipv4_returns_error)
 
 Test(ipv4_tests, ipv4_str_from_str_test_returns_error)
 {
-  cr_assert(ERR_ARG_NULL == ipv4_str_from_str(NULL, NULL));
+  Ipv4StrResult r = ipv4_str_from_str(NULL);
+  cr_assert(r.status == ERR_ARG_NULL);
 
   const char* ipv4 = "lorem ipsum";
-  cr_assert(ERR_ARG_NULL == ipv4_str_from_str(ipv4, NULL));
-
-  Ipv4Str ipv4_str;
-  cr_assert(ERR_ARG_NULL == ipv4_str_from_str(NULL, &ipv4_str));
-
-  cr_assert(ERR_ARG_INVALID == ipv4_str_from_str(ipv4, &ipv4_str));
+  r = ipv4_str_from_str(ipv4);
+  cr_assert(r.status == ERR_ARG_INVALID);
 }
 
 Test(ipv4_tests, ipv4_str_from_str_test_returns_ok)
 {
-  cr_assert(ERR_ARG_NULL == ipv4_str_from_str(NULL, NULL));
-
   const char* a = "127.0.0.1";
-  Ipv4Str ipv4_str;
-  cr_assert(OK == ipv4_str_from_str(a, &ipv4_str));
-  cr_assert(string == ipv4_str.format);
+  Ipv4StrResult r = ipv4_str_from_str(a);
+
+  cr_assert(OK == r.status);
+
+  Ipv4Str ipv4 = r.value;
+  cr_assert(string == ipv4.format);
 
   const char* b = "8888";
-  cr_assert(OK == ipv4_str_from_str(b, &ipv4_str));
-  cr_assert(decimal == ipv4_str.format);
+  r = ipv4_str_from_str(b);
+
+  cr_assert(OK == r.status);
+  cr_assert(decimal == r.value.format);
 }
 
 Test(ipv4_tests, try_ipv4_to_int32_returns_ok)

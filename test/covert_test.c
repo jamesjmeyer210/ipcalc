@@ -1,27 +1,37 @@
 #include <criterion/criterion.h>
+#include "../src/lib/result.h"
 #include "../src/lib/convert.h"
 
-Test(convert_tests, try_uint8_from_str_returns_ok)
+Test(convert_tests, u8_from_str_returns_ok)
 {
-	uint8_t x = 0;
-	cr_assert(OK == try_uint8_from_str("0", &x) && 0 == x);
-	cr_assert(OK == try_uint8_from_str("9", &x) && 9 == x);
-	cr_assert(OK == try_uint8_from_str("88", &x) && 88 == x);
-	cr_assert(OK == try_uint8_from_str("255", &x) && 255 == x);
+	r_u8 x;
+  x = u8_from_str("0");
+	cr_assert(OK == x.status && 0 == x.value);
+
+  x = u8_from_str("9");
+  cr_assert(OK == x.status && 9 == x.value);
+
+  x = u8_from_str("88");
+  cr_assert(OK == x.status && 88 == x.value);
+
+  x = u8_from_str("255");
+  cr_assert(OK == x.status && 255 == x.value);
 }
 
-Test(convert_tests, try_uint8_from_str_returns_ERROR_ARG_NULL)
+Test(convert_tests, u8_from_str_returns_ERR_ARG_OUT_OF_RANGE)
 {
-	uint8_t x = 0;
-	cr_assert(ERR_ARG_NULL == try_uint8_from_str(NULL, &x));
-	cr_assert(ERR_ARG_NULL == try_uint8_from_str("1", NULL));
-	cr_assert(ERR_ARG_NULL == try_uint8_from_str(NULL, NULL));
+	r_u8 x;
+	x = u8_from_str("256");
+  cr_assert(ERR_ARG_OUT_OF_RANGE == x.status);
 }
 
 
 Test(convert_tests, try_uint8_from_str_returns_ERR_ARG_INVALID)
 {
-	uint8_t x = 0;
-	cr_assert(ERR_ARG_INVALID == try_uint8_from_str("-1", &x));
-  cr_assert(ERR_ARG_INVALID == try_uint8_from_str("foo", &x));
+  r_u8 x;
+  x = u8_from_str("-1");
+	cr_assert(ERR_ARG_INVALID == x.status);
+
+  x = u8_from_str("foo");
+  cr_assert(ERR_ARG_INVALID == x.status);
 }

@@ -8,6 +8,8 @@
 #include "convert.h"
 #include "bits.h"
 
+//IMPL_RESULT(Ipv4Str)
+
 static uint8_t from_char(const char c)
 {
   uint8_t x = (uint8_t)c;
@@ -43,33 +45,39 @@ static uint8_t ipv4_space_to_byte(const char* ipv4_space)
   return x;
 }
 
-error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result)
+Ipv4StrResult ipv4_str_from_str(const char* ipv4_str)
 {
-  ERR_IF_NULL(ipv4_str);
-  ERR_IF_NULL(result);
+  Ipv4StrResult r = {0};
+  if(NULL == ipv4_str){
+    r.status = ERR_MSG(ERR_ARG_NULL, "Argument \"%s\" must not be null", "ipv4_str");
+    return r;
+  }
 
   regex_t regex = init_ipv4_regex();
   if(regex_is_valid(&regex, ipv4_str))
   {
-    result->format = string;
-    result->str = ipv4_str;
-    return OK;
+    Ipv4Str x = { .format = string, .str = ipv4_str };
+    r.value = x;
+    r.status = OK;
+    return r;
   }
 
   if(strn_is_numeric(ipv4_str, strlen(ipv4_str)))
   {
-    result->format = decimal;
-    result->str = ipv4_str;
-    return OK;
+    Ipv4Str x = { .format = decimal, .str = ipv4_str };
+    r.value = x;
+    r.status = OK;
+    return r;
   }
 
-  return ERR_MSG(ERR_ARG_INVALID, "Could not identify a format for \"%s\"", ipv4_str);
+  r.status = ERR_MSG(ERR_ARG_INVALID, "Could not identify a format for \"%s\"", ipv4_str);
+  return r;
 }
 
 error_t try_ipv4_to_uint32(const Ipv4Str* ipv4_str, uint32_t* result)
 {
-  ERR_IF_NULL(ipv4_str);
-  ERR_IF_NULL(result);
+  if(NULL == ipv4_str) return ERR_MSG(ERR_ARG_NULL, "Argument \"%s\" must not be null", "ipv4_str");
+  if(NULL == result) return ERR_MSG(ERR_ARG_NULL, "Argument \"%s\" must not be null", "result");
 
   switch (ipv4_str->format) {
     case string:
@@ -85,13 +93,20 @@ error_t try_ipv4_to_uint32(const Ipv4Str* ipv4_str, uint32_t* result)
       }
       return OK;
     case decimal:
-      return try_uint32_from_str(ipv4_str->str, result);
+      {
+        r_u32 x = u32_from_str(ipv4_str->str);
+        if(x.status != OK)
+          return x.status;
+        *result = x.value;
+        return x.status;
+      }
   }
 }
 
 error_t try_uint32_to_ipv4(uint32_t ipv4, char* result)
 {
-  ERR_IF_NULL(result);
+  if(NULL == result) return ERR_MSG(ERR_ARG_NULL, "Argument \"%s\" must not be null", "result");
+  //ERR_IF_NULL(result, "result");
 
   uint8_t x1 = ipv4 >> 24;
   uint8_t x2 = (ipv4 << 8) >> 24;
@@ -104,20 +119,20 @@ error_t try_uint32_to_ipv4(uint32_t ipv4, char* result)
 
 error_t try_decimal_to_ipv4(const char* ipv4, char* result)
 {
-  ERR_IF_NULL(ipv4);
-  ERR_IF_NULL(result);
+  ERR_IF_NULL(ipv4, "ipv4");
+  ERR_IF_NULL(result, "result");
 
-  uint32_t x;
-  if(try_uint32_from_str(ipv4, &x) != OK)
-  {
-    return get_error_code();
-  }
-  if(x == 0 && !str_eq("0", ipv4))
+  r_u32 x = u32_from_str(ipv4);
+  if(x.status != OK)
+    return x.status;
+
+
+  if(x.value == 0 && !str_eq("0", ipv4))
   {
     return ERR(ERR_ARG_INVALID);
   }
 
-  try_uint32_to_ipv4(x, result);
+  try_uint32_to_ipv4(x.status, result);
   return OK;
 }
 
@@ -176,7 +191,12 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
   }
 
   if(OK != try_ipv4_to_uint32(addrs.data[0], &result->lower)) return get_error_code();
-  if(OK != try_uint8_from_str(addrs.data[1], &result->bits)) return get_error_code();
+
+  r_u8 x = u8_from_str(addrs.data[1]);
+  if(x.status != OK){
+    return x.status;
+  }
+
   result->upper = result->lower + (1 << result->bits);
   strings_free(&addrs);
   return OK;
@@ -184,9 +204,9 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
 
 error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4RangeFormat format, Ipv4Range* result)
 {
-  ERR_IF_NULL(ipv4_regex);
-  ERR_IF_NULL(str);
-  ERR_IF_NULL(result);
+  ERR_IF_NULL(ipv4_regex, "ipv4_regex");
+  ERR_IF_NULL(str, "str");
+  ERR_IF_NULL(result, "result");
 
   switch (format)
   {
@@ -197,8 +217,8 @@ error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4Range
 
 Ipv4Range* ipv4_range_next(const Ipv4Range* self, Ipv4Range* next)
 {
-  ERR_IF_NULL(self);
-  ERR_IF_NULL(next);
+  //ERR_IF_NULL(self, "self");
+  //ERR_IF_NULL(next, "next");
 
   next->lower = self->lower + (1 << self->bits);
   next->upper = self->upper;

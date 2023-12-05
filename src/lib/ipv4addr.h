@@ -7,17 +7,26 @@
 #include "error.h"
 #include "result.h"
 
+/// An enumeration of identifiable IPv4 formats
 typedef enum ipv4_format {
   string,
   decimal
 } Ipv4Format;
 
+/// An IPv4 string and its format
 typedef struct ipv4_str {
   Ipv4Format format;
   const char* str;
 } Ipv4Str;
 
-error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result);
+/// The result of creating an Ipv4Str from a string
+typedef struct ipv4_str_result {
+  Ipv4Str value;
+  error_t status;
+} Ipv4StrResult;
+
+/// Creates an Ipv4StrResult from a string.
+Ipv4StrResult ipv4_str_from_str(const char* ipv4_str);
 
 typedef struct ipv4_range {
   uint32_t upper;

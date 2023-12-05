@@ -52,6 +52,6 @@ void print_error(const Error* error, bool verbose);
 
 #define ERR_MSG_GET(ERROR_T, FORMAT, ...) error_new_msg_get(ERROR_T, __LINE__, __FILE_NAME__, __FUNCTION__, FORMAT, __VA_ARGS__)
 
-#define ERR_IF_NULL(arg) if(NULL == arg) ERR_MSG(ERR_ARG_NULL, "Argument %s must not be NULL", "#arg")
+#define ERR_IF_NULL(arg, arg_name) if(NULL == arg) return ERR_MSG(ERR_ARG_NULL, "Argument %s must not be NULL", arg_name)
 
 #endif //IPCALC_ERROR_H
