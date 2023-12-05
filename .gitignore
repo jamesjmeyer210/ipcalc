@@ -1,7 +1,12 @@
 .idea/
-bin/
-lib/
-obj/
 
+# Binary output
+bin/
+
+# Library files
+lib/*.a
+# Object files
+obj/*.o
+# Logs
 *.log
 build
