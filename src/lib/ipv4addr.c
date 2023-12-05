@@ -45,8 +45,8 @@ static uint8_t ipv4_space_to_byte(const char* ipv4_space)
 
 error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result)
 {
-  if(ipv4_str == NULL) return ERR_MSG(ERR_ARG_NULL, "Argument %s is null", "ipv4_str");
-  if(result == NULL) return ERR_MSG(ERR_ARG_NULL, "Argument %s is null", "result");
+  ERR_IF_NULL(ipv4_str);
+  ERR_IF_NULL(result);
 
   regex_t regex = init_ipv4_regex();
   if(regex_is_valid(&regex, ipv4_str))
@@ -68,8 +68,8 @@ error_t ipv4_str_from_str(const char* ipv4_str, Ipv4Str* result)
 
 error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
 {
-  assert(ipv4_str != NULL);
-  assert(result != NULL);
+  ERR_IF_NULL(ipv4_str);
+  ERR_IF_NULL(result);
 
   regex_t regex = init_ipv4_regex();
   if(!regex_is_valid(&regex, ipv4_str))
@@ -96,7 +96,7 @@ error_t try_ipv4_to_uint32(const char* ipv4_str, uint32_t* result)
 
 error_t try_uint32_to_ipv4(uint32_t ipv4, char* result)
 {
-  if(result == NULL) return ERR(ERR_ARG_NULL);
+  ERR_IF_NULL(result);
 
   uint8_t x1 = ipv4 >> 24;
   uint8_t x2 = (ipv4 << 8) >> 24;
@@ -109,8 +109,8 @@ error_t try_uint32_to_ipv4(uint32_t ipv4, char* result)
 
 error_t try_decimal_to_ipv4(const char* ipv4, char* result)
 {
-  if(ipv4 == NULL) return ERR(ERR_ARG_NULL);
-  if(result == NULL) return ERR(ERR_ARG_NULL);
+  ERR_IF_NULL(ipv4);
+  ERR_IF_NULL(result);
 
   uint32_t x;
   if(try_uint32_from_str(ipv4, &x) != OK)
@@ -189,9 +189,9 @@ static error_t try_get_ipv4_slash_range(const regex_t* regex, const char* str, I
 
 error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4RangeFormat format, Ipv4Range* result)
 {
-  assert(ipv4_regex != NULL);
-  assert(str != NULL);
-  assert(result != NULL);
+  ERR_IF_NULL(ipv4_regex);
+  ERR_IF_NULL(str);
+  ERR_IF_NULL(result);
 
   switch (format)
   {
@@ -202,7 +202,8 @@ error_t try_get_ipv4_range(const regex_t* ipv4_regex, const char* str, Ipv4Range
 
 Ipv4Range* ipv4_range_next(const Ipv4Range* self, Ipv4Range* next)
 {
-  if(self == NULL || next == NULL) return next;
+  ERR_IF_NULL(self);
+  ERR_IF_NULL(next);
 
   next->lower = self->lower + (1 << self->bits);
   next->upper = self->upper;
