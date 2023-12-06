@@ -28,12 +28,38 @@ inline bool validate_format(const AppState* self)
 
 inline error_t app_state_convert(const AppState* self)
 {
-  if(self->format == NULL || str_eq(self->format, FORMAT_DECIMAL))
+  Ipv4Str ipv4_str;
+  {
+    Ipv4StrResult r = ipv4_str_from_str(self->convert);
+    if(r.status != OK)
+      return r.status;
+    ipv4_str = r.value;
+  }
+
+  if(ipv4_str.format == string)
+  {
+    r_u32 r = ipv4_str_to_u32(&ipv4_str);
+    if(r.status != OK)
+      return r.status;
+    printf("%d\n", r.value);
+  }
+  if(ipv4_str.format == decimal)
+  {
+    r_str r = decimal_to_ipv4(&ipv4_str);
+    if(r.status != OK)
+      return r.status;
+    printf("%s\n", r.value);
+    free(r.value);
+  }
+
+  return OK;
+
+  /*if(self->format == NULL || str_eq(self->format, FORMAT_DECIMAL))
   {
     LOG_DEBUG(self, "DBG: Attempting to convert %s format\n", FORMAT_DECIMAL);
 
     uint32_t x;
-    if(OK != try_ipv4_to_uint32(self->convert, &x))
+    if(OK != ipv4_str_to_u32(self->convert, &x))
     {
       Error e = get_error();
       print_error(&e, self->verbose);
@@ -47,14 +73,14 @@ inline error_t app_state_convert(const AppState* self)
     LOG_DEBUG(self, "DBG: Attempting to convert %s format\n", FORMAT_IPV4);
 
     char result[15];
-    if(OK != try_decimal_to_ipv4(self->convert, result))
+    if(OK != decimal_to_ipv4(self->convert, result))
     {
       Error e = get_error();
       print_error(&e, self->verbose);
       return e.code;
     }
     printf("%s\n", result);
-  }
+  }*/
 
   return OK;
 }

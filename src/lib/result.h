@@ -18,13 +18,13 @@ T_NAME T_NAME##_ok(T value);
 
 #define IMPL_RESULT(T, T_NAME) \
                                \
-T_NAME T_NAME##_err(error_t e) \
+inline T_NAME T_NAME##_err(error_t e) \
 {                              \
   T_NAME self = { .status = e }; \
   return self;                 \
 }\
 \
-T_NAME T_NAME##_ok(T value)    \
+inline T_NAME T_NAME##_ok(T value)    \
 {                              \
   T_NAME self = { .status = OK, .value = value }; \
   return self;                 \

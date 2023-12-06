@@ -54,33 +54,33 @@ Test(ipv4_tests, try_ipv4_to_int32_returns_ok)
   uint32_t x;
 
   ipv4.str = "0.0.0.0";
-  cr_assert(OK == try_ipv4_to_uint32(&ipv4, &x));
+  cr_assert(OK == ipv4_str_to_u32(&ipv4, &x));
   cr_assert(0 == x);
 
   ipv4.str = "0.0.0.1";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (1 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (1 == x));
 
   ipv4.str = "0.0.0.255";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (255 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (255 == x));
 
   ipv4.str = "0.0.1.255";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (511 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (511 == x));
 
   ipv4.str = "0.1.1.255";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (66047 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (66047 == x));
 
   ipv4.str = "1.1.1.255";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (16843263 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (16843263 == x));
 
   ipv4.str = "1.1.1.1";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (16843009 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (16843009 == x));
 
   ipv4.str = "127.0.0.1";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (2130706433 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (2130706433 == x));
 
   ipv4.str = "198.168.0.1";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (3332898817 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (3332898817 == x));
 
   ipv4.str = "255.255.255.255";
-  cr_assert((OK == try_ipv4_to_uint32(&ipv4, &x)) && (4294967295 == x));
+  cr_assert((OK == ipv4_str_to_u32(&ipv4, &x)) && (4294967295 == x));
 }

@@ -20,10 +20,7 @@ typedef struct ipv4_str {
 } Ipv4Str;
 
 /// The result of creating an Ipv4Str from a string
-typedef struct ipv4_str_result {
-  Ipv4Str value;
-  error_t status;
-} Ipv4StrResult;
+TYPE_RESULT(Ipv4Str, Ipv4StrResult)
 
 /// Creates an Ipv4StrResult from a string.
 Ipv4StrResult ipv4_str_from_str(const char* ipv4_str);
@@ -35,11 +32,12 @@ typedef struct ipv4_range {
   uint32_t remainder;
 } Ipv4Range;
 
-error_t try_ipv4_to_uint32(const Ipv4Str* ipv4_str, uint32_t* result);
+/// Converts an IPv4 string, such as "1.1.1.1" to a 32-bit integer
+r_u32 ipv4_str_to_u32(const Ipv4Str* ipv4_str);
 
 error_t try_uint32_to_ipv4(uint32_t ipv4, char* result);
 
-error_t try_decimal_to_ipv4(const char* ipv4, char* result);
+r_str decimal_to_ipv4(const Ipv4Str* ipv4);
 
 typedef enum ipv4_range_format {
   COLON,
